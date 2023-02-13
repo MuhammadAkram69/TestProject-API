@@ -40,7 +40,7 @@ router.get('/', (req, res) => {
 //Route to add new Category
 
 router.post('/', (req, res, next) => {
-  const newcategory = new category({
+  const newcategory = new Category({
     _id: mongoose.Types.ObjectId(),
     title: req.body.title,
     subCategories: req.body.subCategories,

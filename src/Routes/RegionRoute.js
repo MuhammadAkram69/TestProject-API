@@ -54,12 +54,7 @@ router.post('/',(req,res,next)=>{
         message:"Region is added successfully!",
         CreatedRegion:{
             _id: result._id,
-            title: result.title,
-
-            request:{
-              method: "GET",
-              url:"https://localhost:3000/region/"+ result._id
-            }
+            title: result.title
         }
     })
   })

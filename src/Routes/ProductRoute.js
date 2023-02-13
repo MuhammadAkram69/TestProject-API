@@ -1,10 +1,9 @@
 const express=require('express')
 const mongoose=require('mongoose');
-// const { count } = require('../Models/Category.model');
 const router= express.Router();
 
 
-const Product=require('../Models/Category.model');
+const Product=require('../Models/Product.model');
 
 //Route to get product////////////////
 
@@ -13,7 +12,7 @@ router.get('/',(req,res,next)=>{
     Product.find()
     .select('title price modelno brand MOQ productImage categoryid suppliercert productcert stockAvail manufacturer subcategory innercategory')
     .then(docs=>{
-        console.log('response from get');
+        console.log('response from get',docs);
        const response={
            count: docs.length,
            Productlist: docs.map(doc=>{
@@ -24,18 +23,20 @@ router.get('/',(req,res,next)=>{
                    modelno:doc.modelno,
                    brand:doc.brand,
                    MOQ:doc.MOQ,
-                   productImage:doc.url
-                //    categoryid:doc.categoryid,
-                //    suppliercert:doc.suppliercert,
-                //    productcert:doc.productcert,
-                //    stockAvail:doc.stockAvail,
-                //    manufacturer:doc.manufacturer,
-                //    subcategory:doc.subcategory,
-                //    innercategory:doc.innercategory
+                   productImage:doc.productImage,
+                   categoryid:doc.categoryid,
+                   subcategory:doc.subcategory,
+                   innercategory:doc.innercategory,
+                   suppliercert:doc.suppliercert,
+                   productcert:doc.productcert,
+                   stockAvail:doc.stockAvail,
+                   manufacturer:doc.manufacturer
+                   
                }
            })
        }
        console.log("response after return",response);
+       res.status(200).json(response);
     })
     .catch(err=>{
         console.log(err),
@@ -56,14 +57,15 @@ router.post('/',(req,res,next)=>{
         modelno:req.body.modelno,
         brand: req.body.brand,
         MOQ: req.body.MOQ,
-        productImage: req.body.productImage
-        // categoryid: req.body.categoryid,
-        // suppliercert: req.body.suppliercert,
-        // productcert: req.body.productcert,
-        // stockAvail: req.body.stockAvail,
-        // manufacturer: req.body.manufacturer,
-        // subcategory: req.body.subcategory,
-        // innercategory: req.body.innercategory
+        productImage: req.body.productImage,
+        subcategory: req.body.subcategory,
+        innercategory: req.body.innercategory,
+        categoryid: req.body.categoryid,
+        suppliercert: req.body.suppliercert,
+        productcert: req.body.productcert,
+        stockAvail: req.body.stockAvail,
+        manufacturer: req.body.manufacturer
+        
     })
 
     Newproduct.save()
@@ -78,7 +80,7 @@ router.post('/',(req,res,next)=>{
               modelno:result.modelno,
               brand:result.brand,
               MOQ:result.MOQ,
-              productImage:result.url,
+              productImage:result.productImage,
             //   categoryid:result.categoryid,
             //   suppliercert:result.suppliercert,
             //   productcert:result.productcert,
@@ -86,11 +88,6 @@ router.post('/',(req,res,next)=>{
             //   manufacturer:result.manufacturer,
             //   subcategory:result.subcategory,
             //   innercategory:result.innercategory,
-            
-              request:{
-                Type: "GET",
-                URL: "http://localhost:3000/" + result._id
-            }
           }
       })
     })
