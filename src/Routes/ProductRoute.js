@@ -12,11 +12,72 @@ router.get('/', async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const searchQuery = req.query.q || '';
-  // console.log("chk:",req.query)
+  console.log("chk:",req.query)
   const priceMin = parseInt(req.query.priceMin) || 0;
   const priceMax = parseInt(req.query.priceMax) || Infinity;
   const GTMOQ = parseInt(req.query.GTMOQ) || 0;
-  // const priceMax = parseInt(req.query.priceMax) || Infinity;
+  const regionQuery = req.query.region || '';
+  // console.log(req.query.region);
+  const categoryQuery = req.query.category || '';
+  // console.log(req.query.category);
+  const manufacturerQuery = req.query.manufacturer || '';
+  const supplierCQuery = req.query.supplierC || '';
+  const productCQuery = req.query.productC || '';
+
+  const matchedarray=[]
+  if(regionQuery)
+  {
+    matchedarray.push(  {
+      'stockregion.title': {
+        $regex: regionQuery,
+        $options: 'i'
+      }
+    },)
+  }
+  if(categoryQuery)
+  {
+    matchedarray.push(  {
+            'mainCategory.title': {
+             $regex: categoryQuery,
+             $options: 'i'
+           }
+         },
+       )
+  }
+  if(manufacturerQuery)
+  {
+    matchedarray.push(   {
+      'manufacturer.title': {
+        $regex: manufacturerQuery,
+        $options: 'i'
+      }
+    },
+       )
+  }
+  if(supplierCQuery)
+  {
+    matchedarray.push(   {
+      'supplier_certification.title': {
+        $regex: supplierCQuery,
+        $options: 'i'
+      }
+    },
+       )
+  }
+  if(productCQuery)
+  {
+    matchedarray.push(   {
+      'pro-certification.title': {
+        $regex: productCQuery,
+        $options: 'i'
+      }
+    },
+       )
+  }
+  // if(!matchedarray.length){
+  //     let query= '$and:' + matchedarray;
+  // }
+ 
 
  
   try { 
@@ -53,100 +114,61 @@ router.get('/', async (req, res, next) => {
           as: 'stockregion'
         }
       },
-      // {
-      //   $lookup: {
-      //     from: 'categories',
-      //     localField: 'categoryid',
-      //     foreignField: '_id',
-      //     as: 'mainCategory'
-      //   }
-      // },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categoryid',
+          foreignField: '_id',
+          as: 'mainCategory'
+        }
+      },
       // {
       //   $unwind: {
       //     path: '$pro-certification',
       //     preserveNullAndEmptyArrays: true
       //   }
       // },
-      {
-        $unwind: {
-          path: '$supplier_certification',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$manufacturer',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$stockregion',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $unwind: {
-          path: '$mainCategory.subcategory.innercategory',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-     {
-      $unwind: {
-        path: '$mainCategory.subcategory.innercategory',
-        preserveNullAndEmptyArrays: true
-      }
-    },
+      // {
+      //   $unwind: {
+      //     path: '$supplier_certification',
+      //     preserveNullAndEmptyArrays: true
+      //   }
+      // },
+      // {
+      //   $unwind: {
+      //     path: '$manufacturer',
+      //     preserveNullAndEmptyArrays: true
+      //   }
+      // },
+      // {
+      //   $unwind: {
+      //     path: '$stockregion',
+      //     preserveNullAndEmptyArrays: true
+      //   }
+      // },
+      // {
+      //   $unwind: {
+      //     path: '$mainCategory',
+      //     preserveNullAndEmptyArrays: true
+      //   }
+      // },
+    //  {
+    //   $unwind: {
+    //     path: '$mainCategory.subcategory.innercategory',
+    //     preserveNullAndEmptyArrays: true
+    //   }
+    // },
       
       {
         $match: {
+          $and: matchedarray,
 
-          $or: [
-            // {
-            //   title: {
-            //     $regex: searchQuery,
-            //     $options: 'i'
-            //   }
-            // },
-            // {
-            //   'pro-certification.name': {
-            //     $regex: searchQuery,
-            //     $options: 'i'
-            //   }
-            // },
-            {
-              'supplier_certification.title': {
-                $regex: searchQuery,
-                $options: 'i'
-              }
-            },
-
-            {
-              'manufacturer.title': {
-                $regex: searchQuery,
-                $options: 'i'
-              }
-            },
-            {
-              'stockregion.title': {
-                $regex: searchQuery,
-                $options: 'i'
-              }
-            },
-
-            {
-              'mainCategory.title': {
-                $regex: searchQuery,
-                $options: 'i'
-              }
-            },
-          ],
           price: {
             $gte: priceMin,
             $lte: priceMax
           },
           MOQ: {
-            $gte: GTMOQ,
+            $gte: GTMOQ
           },
         }
       },
@@ -159,23 +181,22 @@ router.get('/', async (req, res, next) => {
       //     brand: 1,
       //     MOQ: 1,
       //     productImage: 1,
-      //     categoryid: 1,
+      //     mainCategory: { $arrayElemAt: ["$mainCategory", 0] },
       //     subcategory: 1,
       //     innercategory: 1,
-      //     certification: { $arrayElemAt: ["$certification", 0] },
-      //     supplier_certification: { $arrayElemAt: ["$supplier_certification", 0] },
-      //     stockAvail: 1,
-      //     manufacturer: 1
+      //     procertification: { $arrayElemAt: ["$procertification", 0] },
+      //     supplier_certification: { $arrayElemAt: ["$supplier_certification", 1] },
+      //     stockregion: { $arrayElemAt: ["$stockregion", 0] },
+      //     manufacturer: { $arrayElemAt: ["$manufacturer", 0] }
       //   }
       // },
-      // {
-      //   $skip: (page - 1) * limit
-      // },
-      // {
-      //   $limit: limit
-      // }
+      {
+        $skip: (page - 1) * limit
+      },
+      {
+        $limit: limit
+      }
     ]);
-   // console.log(productCert,supplierCert);
     const count = await Product.countDocuments()
 
 
