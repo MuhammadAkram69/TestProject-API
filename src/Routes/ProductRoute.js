@@ -17,9 +17,9 @@ router.get('/', async (req, res, next) => {
   const priceMax = parseInt(req.query.priceMax) || Infinity;
   const GTMOQ = parseInt(req.query.GTMOQ) || 0;
   const regionQuery = req.query.region || '';
-  // console.log(req.query.region);
+  console.log(req.query.region);
   const categoryQuery = req.query.category || '';
-  // console.log(req.query.category);
+  console.log(req.query.category);
   const manufacturerQuery = req.query.manufacturer || '';
   const supplierCQuery = req.query.supplierC || '';
   const productCQuery = req.query.productC || '';
@@ -74,10 +74,28 @@ router.get('/', async (req, res, next) => {
     },
        )
   }
+
+  if(searchQuery.length===0){
+    matchedarray.push(
+      {
+        'title': {
+         $regex: searchQuery,
+         $options: 'i'
+       }
+     },
+    )
+  }
   // if(!matchedarray.length){
   //     let query= '$and:' + matchedarray;
   // }
- 
+  // let query; 
+  // if (matchedarray.length === 0) {
+  //   query = {};
+  // } else if (matchedarray.length === 1) {
+  //   query = matchedarray[0];
+  // } else {
+  //   query = { $and: matchedarray };
+  // }
 
  
   try { 

@@ -1,10 +1,21 @@
 const express = require('express')
 const mongoose=require('mongoose')
+var cors = require('cors')
 const app = express()
 const port = 4000
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
+// app.use(cors()) // Use this after the variable declaration
+
+
+const corsOrigin ={
+    origin:'http://localhost:3000', //or whatever port your frontend is using
+    credentials:true,            
+    optionSuccessStatus:200
+}
+app.use(cors(corsOrigin));
+
 // // Local database connection //
 // mongoose.connect('mongodb://localhost:27017/Rest-Api')
 // .then(()=> {console.log("Mongodb connected..")})
