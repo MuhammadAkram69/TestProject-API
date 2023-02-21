@@ -10,7 +10,7 @@ const Product=require('../Models/Product.model');
 
 router.get('/', async (req, res, next) => {
   const page = parseInt(req.query.page) || 1;
-  const limit = 10;
+  const limit = 4;
   const searchQuery = req.query.q || '';
   console.log("chk:",req.query)
   const priceMin = parseInt(req.query.priceMin) || 0;
@@ -180,6 +180,15 @@ router.get('/', async (req, res, next) => {
       {
         $match: {
           $and: matchedarray,
+
+          // $or:[
+          //   {
+          //     'title': {
+          //      $regex: searchQuery,
+          //      $options: 'i'
+          //    }
+          //  },
+          // ],
 
           price: {
             $gte: priceMin,

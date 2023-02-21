@@ -42,3 +42,6 @@
 //       });
 //     }
 //   });
+
+
+//////////code to render products filter at front end//////////
