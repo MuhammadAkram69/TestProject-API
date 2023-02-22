@@ -276,14 +276,28 @@ router.get('/', async (req, res, next) => {
           }
 
       });
-      
+      ///price filter/////////
+      let minPrice = products[0].price;
+        let maxPrice = products[0].price;
+
+        for (let i = 1; i < products.length; i++) {
+          if (products[i].price < minPrice) {
+            minPrice = products[i].price;
+          }
+          if (products[i].price > maxPrice) {
+            maxPrice = products[i].price;
+          }
+        }
+
+        const priceRange = [minPrice, maxPrice];
 
       let filters ={
         manufacturerTitles,
         stockregionF,
         supplier_certificationF,
         pro_certificationF,
-        mainCategoryF
+        mainCategoryF,
+        priceRange
       }
      console.log("titles==========================",filters);
 
@@ -298,10 +312,11 @@ router.get('/', async (req, res, next) => {
       count: products.length,
       totalPages: Math.ceil(count / limit),
       currentPage: page,
-      Productlist: products
+      Productlist: products,
+      FiltersArray: filters
 
     };
-    // console.log(response);
+    console.log(response);
     res.status(200).json(response);
   } catch (err) {
     console.log(err);
