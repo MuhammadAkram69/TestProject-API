@@ -67,7 +67,7 @@ router.get('/', async (req, res, next) => {
   if(productCQuery)
   {
     matchedarray.push(   {
-      'pro-certification.title': {
+      'pro_certification.title': {
         $regex: productCQuery,
         $options: 'i'
       }
@@ -105,7 +105,7 @@ router.get('/', async (req, res, next) => {
           from: 'certifications',
           localField: 'productCert',
           foreignField: '_id',
-          as: 'pro-certification'
+          as: 'pro_certification'
         }
       },
       {
@@ -140,36 +140,36 @@ router.get('/', async (req, res, next) => {
           as: 'mainCategory'
         }
       },
-      // {
-      //   $unwind: {
-      //     path: '$pro-certification',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$supplier_certification',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$manufacturer',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$stockregion',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
-      // {
-      //   $unwind: {
-      //     path: '$mainCategory',
-      //     preserveNullAndEmptyArrays: true
-      //   }
-      // },
+      {
+        $unwind: {
+          path: '$pro_certification',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$supplier_certification',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$manufacturer',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$stockregion',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $unwind: {
+          path: '$mainCategory',
+          preserveNullAndEmptyArrays: true
+        }
+      },
     //  {
     //   $unwind: {
     //     path: '$mainCategory.subcategory.innercategory',
@@ -224,6 +224,73 @@ router.get('/', async (req, res, next) => {
         $limit: limit
       }
     ]);
+
+    ////////////Filters arrays to get filter///////////////
+    
+    let manufacturerTitles = [];
+    const stockregionF = [];
+    const pro_certificationF = [];
+    let supplier_certificationF = [];
+    const mainCategoryF = [];
+    const priceF=[];
+    const MOQF=[];
+
+    
+     
+
+      products.forEach((product) => {
+
+        const { manufacturer } = product;
+          if (manufacturer && !manufacturerTitles.includes(manufacturer.title)) {
+              if (manufacturer && manufacturer.title) {
+                manufacturerTitles.push(manufacturer.title);
+              }
+          }
+
+          const { stockregion } = product;
+          if (stockregion && !stockregionF.includes(stockregion.title)) {
+              if (stockregion && stockregion.title) {
+                stockregionF.push(stockregion.title);
+              }
+          }
+
+          const { supplier_certification } = product;
+          if (supplier_certification && !supplier_certificationF.includes(supplier_certification.title)) {
+              if (supplier_certification && supplier_certification.title) {
+                supplier_certificationF.push(supplier_certification.title);
+              }
+          }
+
+          const { pro_certification } = product;
+          if (pro_certification && !pro_certificationF.includes(pro_certification.title)) {
+              if (pro_certification && pro_certification.title) {
+                pro_certificationF.push(pro_certification.title);
+              }
+          }
+          
+          const { mainCategory } = product;
+          if (mainCategory && !mainCategoryF.includes(mainCategory.title)) {
+              if (mainCategory && mainCategory.title) {
+                mainCategoryF.push(mainCategory.title);
+              }
+          }
+
+      });
+      
+
+      let filters ={
+        manufacturerTitles,
+        stockregionF,
+        supplier_certificationF,
+        pro_certificationF,
+        mainCategoryF
+      }
+     console.log("titles==========================",filters);
+
+    
+    
+    
+     
     const count = await Product.countDocuments()
 
 
@@ -232,8 +299,9 @@ router.get('/', async (req, res, next) => {
       totalPages: Math.ceil(count / limit),
       currentPage: page,
       Productlist: products
+
     };
-    console.log(response);
+    // console.log(response);
     res.status(200).json(response);
   } catch (err) {
     console.log(err);
